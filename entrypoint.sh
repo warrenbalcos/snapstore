@@ -1,10 +1,14 @@
 #!/bin/sh
 set -e
 
-# Replace PORT placeholder in nginx config
+# Generate APP_KEY if not set
+if [ -z "$APP_KEY" ]; then
+    php artisan key:generate --force
+fi
+
+# Replace PORT in nginx config
 PORT=${PORT:-8000}
-sed "s/PORT_PLACEHOLDER/$PORT/" /etc/nginx/sites-available/default > /etc/nginx/sites-available/default.tmp
-mv /etc/nginx/sites-available/default.tmp /etc/nginx/sites-available/default
+sed -i "s/PORT_PLACEHOLDER/$PORT/" /etc/nginx/sites-available/default
 
 # Run migrations
 php artisan migrate --force

@@ -10,7 +10,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 COPY . .
-RUN composer install --no-interaction --optimize-autoloader --no-dev
+RUN composer install --no-interaction --optimize-autoloader --no-dev \
+    && mkdir -p storage/logs storage/framework/sessions storage/framework/views storage/framework/cache \
+    && chown -R www-data:www-data /var/www/html
 
 COPY nginx.conf /etc/nginx/sites-available/default
 COPY entrypoint.sh /entrypoint.sh
