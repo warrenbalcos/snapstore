@@ -6,6 +6,18 @@ mkdir -p /run/php
 PORT=${PORT:-8000}
 sed -i "s/PORT_PLACEHOLDER/$PORT/" /etc/nginx/sites-available/default
 
+# Validate required env vars
+if [ -z "$DB_HOST" ] || [ -z "$DB_DATABASE" ] || [ -z "$DB_USERNAME" ] || [ -z "$DB_PASSWORD" ]; then
+    echo "ERROR: Missing required database env vars."
+    echo "  DB_HOST=$DB_HOST"
+    echo "  DB_PORT=$DB_PORT"
+    echo "  DB_DATABASE=$DB_DATABASE"
+    echo "  DB_USERNAME=$DB_USERNAME"
+    echo "  DB_PASSWORD=${DB_PASSWORD:+***set***}"
+    echo "Check that the Render database is created and linked to this service."
+    exit 1
+fi
+
 # Generate .env from environment so Laravel always has config
 # (php-fpm clear_env can block env vars; .env file is the reliable fix)
 cat > /var/www/html/.env <<EOF
