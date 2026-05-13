@@ -2,9 +2,10 @@ services:
   - type: web
     name: snapstore
     runtime: docker
-    repo: https://github.com/YOUR_USER/snapstore
+    repo: https://github.com/warrenbalcos/snapstore
     branch: master
     plan: free
+    healthCheckPath: /health
     envVars:
       - key: APP_ENV
         value: production
@@ -12,6 +13,12 @@ services:
         value: "false"
       - key: APP_KEY
         sync: false
+      - key: SESSION_DRIVER
+        value: array
+      - key: CACHE_STORE
+        value: array
+      - key: PHP_CLI_SERVER_WORKERS
+        value: "4"
       - key: DB_CONNECTION
         value: mysql
       - key: DB_HOST
