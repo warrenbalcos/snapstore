@@ -1,8 +1,7 @@
-FROM php:8.4-fpm
+FROM php:8.4-cli
 
 RUN apt-get update && apt-get install -y \
     git unzip \
-    nginx \
     && rm -rf /var/lib/apt/lists/* \
     && docker-php-ext-install pdo_mysql
 
@@ -14,10 +13,6 @@ RUN composer install --no-interaction --optimize-autoloader --no-dev \
     && mkdir -p storage/logs storage/framework/sessions storage/framework/views storage/framework/cache \
     && chown -R www-data:www-data /var/www/html
 
-COPY nginx.conf /etc/nginx/sites-available/default
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
 EXPOSE 8000
 
-CMD ["/entrypoint.sh"]
+CMD ["sh", "-c", "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"]
