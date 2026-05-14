@@ -1,19 +1,18 @@
 # Snapstore
 
-A version-controlled key-value store with an HTTP API. Built with Laravel 13, PHP 8.4, MySQL 8.
+A version-controlled key-value store with an HTTP API. Built with Laravel 13, PHP 8.4, PostgreSQL.
 
 Every write creates a new version. Reads return the latest value or a historical value by timestamp.
+
+**Live demo:** [https://snapstore-xvpe.onrender.com](https://snapstore-xvpe.onrender.com)
 
 ## Quick Start
 
 ```bash
 # Clone and run
-git clone https://github.com/YOUR_USER/snapstore.git
+git clone https://github.com/warrenbalcos/snapstore.git
 cd snapstore
 docker compose up --build -d
-
-# Run migrations
-docker compose exec app php artisan migrate
 
 # Verify
 curl http://localhost:8000/health
@@ -25,6 +24,8 @@ curl http://localhost:8000/health
 ```bash
 docker compose exec app php artisan test
 ```
+
+CI runs automatically via GitHub Actions on every push to `master`.
 
 ## API Reference
 
@@ -107,12 +108,50 @@ curl "http://localhost:8000/object/mykey?timestamp=1440568980"
 curl http://localhost:8000/object/get_all_records
 ```
 
+## Deployment
+
+### Render.com
+
+The app is deployed to Render using a Docker runtime with nginx + php-fpm and a managed PostgreSQL database.
+
+**Setup:**
+1. Create a new **Web Service** on Render, connected to the GitHub repo
+2. Set runtime to **Docker**
+3. Create a **PostgreSQL** database (free tier)
+4. Add the following environment variables:
+
+| Variable | Value |
+|----------|-------|
+| `APP_ENV` | `production` |
+| `APP_DEBUG` | `false` |
+| `APP_KEY` | `base64:xxxxx` (generate with `php artisan key:generate`) |
+| `SESSION_DRIVER` | `array` |
+| `CACHE_STORE` | `array` |
+| `DB_CONNECTION` | `pgsql` |
+| `DB_HOST` | Render database hostname (just the hostname, not the full URL) |
+| `DB_PORT` | `5432` |
+| `DB_DATABASE` | Database name from Render |
+| `DB_USERNAME` | Database username from Render |
+| `DB_PASSWORD` | Database password from Render |
+
+Set **Health Check Path** to `/health`.
+
+### Local Development
+
+```bash
+docker compose up -d
+```
+
+Uses PostgreSQL in Docker with the local `.env` file. The volume mount provides hot-reload.
+
 ## Tech Stack
 
 | Component | Technology |
 |-----------|-----------|
 | Language | PHP 8.4 |
 | Framework | Laravel 13 |
-| Database | MySQL 8 |
+| Database | PostgreSQL |
 | Testing | PHPUnit |
+| CI/CD | GitHub Actions |
+| Deployment | Render.com (Docker) |
 | Container | Docker + Docker Compose |
