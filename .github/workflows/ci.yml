@@ -11,15 +11,16 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      mysql:
-        image: mysql:8
+      postgres:
+        image: postgres:16
         env:
-          MYSQL_ROOT_PASSWORD: secret
-          MYSQL_DATABASE: snapstore_test
+          POSTGRES_USER: snapstore
+          POSTGRES_PASSWORD: secret
+          POSTGRES_DB: snapstore_test
         ports:
-          - 3306:3306
+          - 5432:5432
         options: >-
-          --health-cmd="mysqladmin ping -h localhost"
+          --health-cmd="pg_isready -U snapstore"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
@@ -32,6 +33,7 @@ jobs:
         with:
           php-version: '8.4'
           coverage: xdebug
+          extensions: pdo_pgsql
 
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
@@ -44,19 +46,21 @@ jobs:
 
       - name: Run migrations
         env:
+          DB_CONNECTION: pgsql
           DB_HOST: 127.0.0.1
-          DB_PORT: 3306
+          DB_PORT: 5432
           DB_DATABASE: snapstore_test
-          DB_USERNAME: root
+          DB_USERNAME: snapstore
           DB_PASSWORD: secret
         run: php artisan migrate --force
 
       - name: Run tests with coverage
         env:
+          DB_CONNECTION: pgsql
           DB_HOST: 127.0.0.1
-          DB_PORT: 3306
+          DB_PORT: 5432
           DB_DATABASE: snapstore_test
-          DB_USERNAME: root
+          DB_USERNAME: snapstore
           DB_PASSWORD: secret
           XDEBUG_MODE: coverage
         run: vendor/bin/phpunit --coverage-text

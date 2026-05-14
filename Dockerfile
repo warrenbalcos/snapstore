@@ -1,9 +1,9 @@
 FROM php:8.4-fpm
 
 RUN apt-get update && apt-get install -y \
-    git unzip nginx \
+    git unzip nginx libpq-dev \
     && rm -rf /var/lib/apt/lists/* \
-    && docker-php-ext-install pdo_mysql
+    && docker-php-ext-install pdo_pgsql pdo_mysql
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 

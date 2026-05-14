@@ -10,22 +10,23 @@ services:
         condition: service_healthy
     environment:
       - DB_HOST=db
-      - DB_PORT=3306
+      - DB_PORT=5432
       - DB_DATABASE=snapstore
-      - DB_USERNAME=root
+      - DB_USERNAME=snapstore
       - DB_PASSWORD=secret
 
   db:
-    image: mysql:8
+    image: postgres:16
     ports:
-      - "3306:3306"
+      - "5432:5432"
     environment:
-      MYSQL_ROOT_PASSWORD: secret
-      MYSQL_DATABASE: snapstore
+      POSTGRES_USER: snapstore
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: snapstore
     volumes:
-      - db-data:/var/lib/mysql
+      - db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD-SHELL", "pg_isready -U snapstore"]
       interval: 5s
       timeout: 5s
       retries: 5
