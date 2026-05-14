@@ -1,5 +1,7 @@
 # Snapstore
 
+[![CI](https://github.com/warrenbalcos/snapstore/actions/workflows/ci.yml/badge.svg)](https://github.com/warrenbalcos/snapstore/actions/workflows/ci.yml)
+
 A version-controlled key-value store with an HTTP API. Built with Laravel 13, PHP 8.4, PostgreSQL.
 
 Every write creates a new version. Reads return the latest value or a historical value by timestamp.

@@ -63,4 +63,21 @@ jobs:
           DB_USERNAME: snapstore
           DB_PASSWORD: secret
           XDEBUG_MODE: coverage
-        run: vendor/bin/phpunit --coverage-text
+        run: vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml
+
+      - name: Enforce coverage threshold (80%)
+        run: |
+          COVERAGE=$(python3 -c "
+          import xml.etree.ElementTree as ET
+          tree = ET.parse('coverage.xml')
+          metrics = tree.getroot().find('.//project/metrics')
+          covered = int(metrics.get('coveredstatements'))
+          total = int(metrics.get('statements'))
+          print(f'{(covered/total)*100:.0f}' if total > 0 else '0')
+          ")
+          echo "Line coverage: ${COVERAGE}%"
+          if [ "$COVERAGE" -lt 80 ]; then
+            echo "::error::Coverage ${COVERAGE}% is below 80% threshold"
+            exit 1
+          fi
+          echo "Coverage check passed: ${COVERAGE}%"
